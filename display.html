@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>現場候位大螢幕</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --primary-color: #00ffcc; /* 叫號主色 */
+            --secondary-color: #ffcc00; /* 準備中顏色 */
+            --text-white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 頂部標題 */
+        header {
+            padding: 20px;
+            text-align: center;
+            background: #333;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 5px;
+            border-bottom: 5px solid var(--primary-color);
+        }
+
+        /* 主要內容區 */
+        main {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 左側：目前叫號 */
+        .current-box {
+            flex: 2;
+            background: var(--card-bg);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.2);
+        }
+
+        .current-label { font-size: 3rem; color: var(--primary-color); }
+        .current-number { font-size: 15rem; font-weight: 900; line-height: 1; }
+
+        /* 右側：準備清單 */
+        .queue-box {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .queue-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #555;
+            padding-bottom: 10px;
+        }
+
+        .queue-list {
+            list-style: none;
+            padding: 0;
+            font-size: 3.5rem;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        .queue-item { margin-bottom: 15px; animation: pulse 2s infinite; }
+
+        /* 底部走馬燈 */
+        footer {
+            background: #000;
+            height: 60px;
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .marquee {
+            font-size: 1.5rem;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>SimpleReserve 2.0 現場候位系統</header>
+
+    <main>
+        <div class="current-box">
+            <div class="current-label">目前叫號 NOW SERVING</div>
+            <div class="current-number" id="nowNumber">025</div>
+        </div>
+
+        <div class="queue-box">
+            <div class="queue-title">後續準備</div>
+            <div class="queue-list">
+                <div class="queue-item">026</div>
+                <div class="queue-item">027</div>
+                <div class="queue-item">028</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="marquee">
+            📢 歡迎光臨！請留意您的號碼，過號請洽櫃台服務人員。祝您有個愉快的一天！ 📢
+        </div>
+    </footer>
+
+    <script>
+        // 這裡未來可以對接您的 SimpleReserve2.0 資料庫 (例如 Firebase 或 LocalStorage)
+        // 範例：模擬號碼跳動
+        function updateDisplay(num) {
+            document.getElementById('nowNumber').innerText = num.toString().padStart(3, '0');
+        }
+        
+        // 假設每 10 秒模擬跳一號（實際應連結您的管理後台）
+        // setInterval(() => { ... }, 10000);
+    </script>
+</body>
+</html>
