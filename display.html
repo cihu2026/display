@@ -2,152 +2,199 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>現場候位大螢幕</title>
+    <title>SimpleReserve 2.0 | 現場候位大螢幕</title>
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --primary-color: #00ffcc; /* 叫號主色 */
-            --secondary-color: #ffcc00; /* 準備中顏色 */
-            --text-white: #ffffff;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #22d3ee;
+            --accent: #facc15;
+            --text: #f8fafc;
         }
 
-        body {
-            margin: 0;
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: var(--bg);
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-white);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            color: var(--text);
             overflow: hidden;
         }
 
-        /* 頂部標題 */
+        /* 介面佈局 */
+        .container {
+            display: grid;
+            grid-template-rows: 100px 1fr 80px;
+            height: 100vh;
+        }
+
+        /* 頂部：標題與時間 */
         header {
-            padding: 20px;
-            text-align: center;
-            background: #333;
-            font-size: 2rem;
-            font-weight: bold;
-            letter-spacing: 5px;
-            border-bottom: 5px solid var(--primary-color);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; background: rgba(0,0,0,0.3);
+            border-bottom: 2px solid var(--primary);
         }
 
-        /* 主要內容區 */
+        .logo { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        #clock { font-size: 1.5rem; font-family: monospace; }
+
+        /* 主區域 */
         main {
-            flex: 1;
-            display: flex;
-            padding: 20px;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px; padding: 30px;
         }
 
-        /* 左側：目前叫號 */
-        .current-box {
-            flex: 2;
-            background: var(--card-bg);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 50px rgba(0, 255, 204, 0.2);
+        /* 左側：大號碼 */
+        .main-call {
+            background: var(--card);
+            border-radius: 30px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 4px solid var(--primary);
+            position: relative;
         }
 
-        .current-label { font-size: 3rem; color: var(--primary-color); }
-        .current-number { font-size: 15rem; font-weight: 900; line-height: 1; }
-
-        /* 右側：準備清單 */
-        .queue-box {
-            flex: 1;
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+        .label { font-size: 3rem; margin-bottom: 20px; letter-spacing: 10px; }
+        .number { 
+            font-size: 25rem; font-weight: 900; line-height: 1;
+            color: var(--primary); text-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
         }
 
-        .queue-title {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #555;
-            padding-bottom: 10px;
+        /* 右側：準備區 */
+        .side-list {
+            background: var(--card);
+            border-radius: 30px; padding: 30px;
+            display: flex; flex-direction: column;
         }
 
-        .queue-list {
-            list-style: none;
-            padding: 0;
-            font-size: 3.5rem;
-            text-align: center;
-            color: var(--secondary-color);
+        .side-title { 
+            font-size: 2rem; text-align: center; 
+            padding-bottom: 20px; border-bottom: 1px solid #444;
+            color: var(--accent);
         }
 
-        .queue-item { margin-bottom: 15px; animation: pulse 2s infinite; }
+        .wait-numbers {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: space-around; align-items: center;
+            font-size: 5rem; font-weight: bold; color: rgba(255,255,255,0.6);
+        }
 
         /* 底部走馬燈 */
         footer {
-            background: #000;
-            height: 60px;
-            overflow: hidden;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
+            background: #000; display: flex; align-items: center;
+            white-space: nowrap; overflow: hidden;
         }
 
         .marquee {
-            font-size: 1.5rem;
-            animation: marquee 20s linear infinite;
+            font-size: 1.8rem; animation: scroll 25s linear infinite;
         }
 
-        @keyframes marquee {
+        @keyframes scroll {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+        /* 控制按鈕（滑鼠移入才顯示） */
+        .controls {
+            position: fixed; bottom: 90px; right: 20px;
+            opacity: 0; transition: 0.3s;
+        }
+        body:hover .controls { opacity: 1; }
+        
+        button {
+            padding: 10px 20px; cursor: pointer; border-radius: 5px;
+            background: var(--primary); border: none; font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <header>SimpleReserve 2.0 現場候位系統</header>
+<div class="container">
+    <header>
+        <div class="logo">SimpleReserve 2.0</div>
+        <div id="clock">00:00:00</div>
+    </header>
 
     <main>
-        <div class="current-box">
-            <div class="current-label">目前叫號 NOW SERVING</div>
-            <div class="current-number" id="nowNumber">025</div>
+        <div class="main-call">
+            <div class="label">請號碼到場</div>
+            <div class="number" id="nowNum">--</div>
         </div>
 
-        <div class="queue-box">
-            <div class="queue-title">後續準備</div>
-            <div class="queue-list">
-                <div class="queue-item">026</div>
-                <div class="queue-item">027</div>
-                <div class="queue-item">028</div>
+        <div class="side-list">
+            <div class="side-title">後續準備</div>
+            <div class="wait-numbers" id="nextList">
+                <div>--</div>
+                <div>--</div>
+                <div>--</div>
             </div>
         </div>
     </main>
 
     <footer>
         <div class="marquee">
-            📢 歡迎光臨！請留意您的號碼，過號請洽櫃台服務人員。祝您有個愉快的一天！ 📢
+            📢 歡迎光臨！過號請重新取號。請保持社交距離，祝您用餐愉快！本系統由 GitHub Pages 提供服務。
         </div>
     </footer>
+</div>
 
-    <script>
-        // 這裡未來可以對接您的 SimpleReserve2.0 資料庫 (例如 Firebase 或 LocalStorage)
-        // 範例：模擬號碼跳動
-        function updateDisplay(num) {
-            document.getElementById('nowNumber').innerText = num.toString().padStart(3, '0');
-        }
+<div class="controls">
+    <button onclick="testCall()">模擬叫號</button>
+    <button onclick="toggleFS()">全螢幕模式</button>
+</div>
+
+<script>
+    // 1. 更新時鐘
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', {hour12: false});
+    }
+    setInterval(updateClock, 1000);
+
+    // 2. 語音叫號功能
+    function speak(num) {
+        const msg = new SpeechSynthesisUtterance(`請 ${num} 號到櫃檯報到`);
+        msg.lang = 'zh-TW';
+        msg.rate = 0.8; // 速度慢一點比較清楚
+        window.speechSynthesis.speak(msg);
+    }
+
+    // 3. 更新畫面號碼
+    let current = 0;
+    function updateNumbers(num) {
+        // 更新大號碼
+        const nowEl = document.getElementById('nowNum');
+        nowEl.innerText = num.toString().padStart(3, '0');
         
-        // 假設每 10 秒模擬跳一號（實際應連結您的管理後台）
-        // setInterval(() => { ... }, 10000);
-    </script>
+        // 更新右側預備號碼 (目前+1, +2, +3)
+        const nextItems = document.getElementById('nextList').children;
+        for(let i=0; i<3; i++) {
+            nextItems[i].innerText = (num + i + 1).toString().padStart(3, '0');
+        }
+
+        // 觸發語音
+        speak(num);
+    }
+
+    // 模擬用函數
+    function testCall() {
+        current++;
+        updateNumbers(current);
+    }
+
+    // 全螢幕切換
+    function toggleFS() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // 初始化
+    updateClock();
+</script>
+
 </body>
 </html>
